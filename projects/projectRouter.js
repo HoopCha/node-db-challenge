@@ -13,6 +13,17 @@ router.get('/', (req, res) => {
       });
   })
 
+  router.get('/:id', (req, res) => {
+    const project_id = req.params.id;
+    Projects.getProjectResources(project_id)
+      .then(recs => {
+        res.status(200).json(recs)
+      })
+      .catch(err => {
+        res.status(500).json({ message: 'Failed to get projects resources' });
+      });
+  })  
+
 router.post('/', (req, res) => {
 const newProject = req.body;
 Projects.addProject(newProject)
@@ -49,7 +60,10 @@ router.get('/:id/tasks', (req, res) => {
 const project_id = req.params.id;
 Projects.getTasks(project_id)
     .then(recs => {
-    res.status(200).json(recs)
+        const tasksMapped = recs.map(project => {
+            return {...project, completed: project.completed === 0 ? false : true}
+        })
+    res.status(200).json(tasksMapped)
     })
     .catch(err => {
     res.status(500).json({ message: 'Failed to get tasks by that project id' });
